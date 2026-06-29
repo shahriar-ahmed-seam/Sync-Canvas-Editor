@@ -1,0 +1,37 @@
+# Render Blueprint for the Sync-Canvas backend (WebSocket server + Redis).
+# Deploy: Render Dashboard → New → Blueprint → pick this repo. Render reads this
+# file from the repo ROOT. After the first deploy, set CORS_ORIGIN to your
+# Vercel URL (see README "Deployment").
+#
+# NOTE: if Render rejects `type: redis` (it now brands Redis as "Key Value"),
+# create a Key Value instance manually and paste its Internal URL into the
+# server's REDIS_URL env var instead of the `fromService` block below.
+services:
+  - type: web
+    name: sync-canvas-server
+    runtime: node
+    plan: starter # WebSockets need a non-sleeping instance; the free tier idles out.
+    rootDir: apps/server
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: SNAPSHOT_INTERVAL_MS
+        value: "10000"
+      - key: BOARD_TTL_SECONDS
+        value: "0"
+      - key: CORS_ORIGIN
+        sync: false # set to your Vercel URL after the frontend is live
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: sync-canvas-redis
+          property: connectionString
+
+  - type: redis
+    name: sync-canvas-redis
+    plan: starter
+    maxmemoryPolicy: noeviction # boards must not be silently evicted
+    ipAllowList: [] # only reachable from within Render's private network

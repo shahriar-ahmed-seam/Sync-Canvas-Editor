@@ -14,9 +14,9 @@ and can be exported.
 
 ```
 ┌──────────────┐        WebSocket (Yjs sync + awareness)        ┌──────────────────┐
-│  Next.js web │  ◄───────────────────────────────────────►    │  Node WS server  │
+│  Next.js web │  ◄───────────────────────────────────────►     │  Node WS server  │
 │  (Vercel)    │                                                │  (Render)        │
-└──────────────┘                                                └────────┬─────────┘
+└──────────────┘                                                └─────────┬────────┘
                                                                           │
                                                           Redis Pub/Sub + snapshots
                                                                           │
@@ -93,7 +93,43 @@ npm run test:e2e
 
 ## Deployment
 
-- **Backend → Render:** see `apps/server/render.yaml` (web service + Redis instance).
-- **Frontend → Vercel:** import the repo, set root directory to `apps/web`, and set
-  `NEXT_PUBLIC_WS_URL` / `NEXT_PUBLIC_API_URL` to your Render URL.
+Two services: the backend goes to **Render** (it needs a long-lived WebSocket
+connection + Redis), the frontend to **Vercel**. Deploy the backend first so you
+have its URL for the frontend's env vars.
+
+### 1. Backend → Render
+
+1. Render Dashboard → **New → Blueprint** → select this repo. Render reads
+   [`render.yaml`](./render.yaml) from the root and provisions the web service
+   **and** a Redis instance, wiring `REDIS_URL` automatically.
+2. The web service uses the **Starter** plan on purpose — WebSockets need an
+   instance that doesn't sleep (the free tier idles out and drops sockets).
+3. After it goes live, copy the service URL, e.g. `https://sync-canvas-server.onrender.com`.
+
+> If Render rejects `type: redis` (it now brands Redis as "Key Value"), create a
+> Key Value instance manually and paste its **Internal URL** into the server's
+> `REDIS_URL` env var.
+
+### 2. Frontend → Vercel
+
+1. Vercel → **Add New → Project** → import this repo.
+2. Set **Root Directory** to `apps/web` (framework auto-detects as Next.js).
+3. Add environment variables (use your Render URL; note `wss://` for the socket):
+
+   | Variable | Value |
+   |---|---|
+   | `NEXT_PUBLIC_API_URL` | `https://sync-canvas-server.onrender.com` |
+   | `NEXT_PUBLIC_WS_URL` | `wss://sync-canvas-server.onrender.com` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://<your-app>.vercel.app` |
+
+4. Deploy, then copy the resulting Vercel URL.
+
+### 3. Close the loop (CORS)
+
+In Render, set the server's **`CORS_ORIGIN`** env var to your Vercel URL
+(e.g. `https://sync-canvas.vercel.app`) and let it redeploy. The backend only
+accepts API/WebSocket traffic from that origin.
+
+That's it — open the Vercel URL, create a board, share the link, draw together.
+
 
