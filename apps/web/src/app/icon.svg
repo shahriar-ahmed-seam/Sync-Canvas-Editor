@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#12100B"/>
+  <!-- two overlapping squares: collaborators on one canvas -->
+  <rect x="6" y="6" width="14" height="14" fill="#C6910C"/>
+  <rect x="13" y="13" width="13" height="13" fill="#F4EFE3"/>
+  <rect x="13" y="13" width="7" height="7" fill="#C6910C"/>
+</svg>

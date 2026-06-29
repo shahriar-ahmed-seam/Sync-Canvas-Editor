@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * THEME TOKENS
+ * ------------
+ * Single source of truth for the palette. Swap these RGB triplets to re-key the
+ * entire product to the Hero asset's colors. Defaults below are a "technical
+ * blueprint" scheme: near-black ink, paper-white canvas, one vermilion accent.
+ */
+:root {
+  --ink: 18 16 11; /* app background — warm near-black */
+  --surface: 28 25 18; /* panels */
+  --surface-2: 40 36 26; /* raised panels / inputs */
+  --line: 66 60 45; /* hairline borders (warm) */
+  --muted: 156 146 128; /* secondary text — warm taupe */
+  --paper: 244 239 227; /* the canvas — warm cream, sampled from hero */
+  --accent: 198 145 12; /* gold — sampled from the hero's most vivid tone */
+  --accent-ink: 18 16 11; /* near-black text on top of gold */
+
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* {
+  border-color: rgb(var(--line));
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: rgb(var(--ink));
+  color: rgb(var(--paper));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Thin, technical scrollbars. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--ink));
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--line));
+  border: 2px solid rgb(var(--ink));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted));
+}
+
+/* Blueprint grid used behind the hero. */
+.grid-backdrop {
+  background-image:
+    linear-gradient(rgb(var(--line) / 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--line) / 0.35) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+}
+
+/* Focus ring that respects the sharp aesthetic. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Primary action: solid accent block. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 border px-5 py-3
+           text-sm font-medium tracking-wide transition-colors
+           disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-accent {
+    @apply btn border-accent bg-accent text-accent-ink hover:bg-accent/90;
+  }
+  .btn-ghost {
+    @apply btn border-line bg-transparent text-paper hover:border-paper/60;
+  }
+  .btn-quiet {
+    @apply btn border-transparent bg-transparent text-muted hover:text-paper;
+  }
+
+  .field {
+    @apply w-full border border-line bg-surface-2 px-4 py-3 text-sm
+           text-paper placeholder:text-muted focus:border-accent;
+  }
+
+  .label-mono {
+    @apply font-mono text-[11px] uppercase tracking-widest text-muted;
+  }
+
+  .panel {
+    @apply border border-line bg-surface;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "sync-canvas-editor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Sync-Canvas-Editor — a conflict-free real-time collaborative whiteboard built on CRDTs.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:server": "npm run dev --workspace apps/server",
+    "build:web": "npm run build --workspace apps/web",
+    "build:server": "npm run build --workspace apps/server",
+    "test:e2e": "node scripts/e2e.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
